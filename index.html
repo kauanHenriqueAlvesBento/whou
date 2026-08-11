@@ -1,11 +1,753 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+
+    <title>Mistérios dos Pinguins</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --blue-dark: #071a2b;
+            --blue: #0d3555;
+            --blue-light: #2d8cff;
+            --cyan: #66e6ff;
+            --white: #ffffff;
+            --text: #dceeff;
+            --danger: #ff5d73;
+            --success: #38e89b;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--white);
+
+            background:
+                radial-gradient(circle at 20% 20%, #124c78 0%, transparent 35%),
+                radial-gradient(circle at 80% 80%, #0b5c76 0%, transparent 30%),
+                linear-gradient(135deg, #03101c, #09263d 55%, #06131f);
+
+            overflow-x: hidden;
+        }
+
+        /* Partículas decorativas */
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .25;
+
+            background-image:
+                radial-gradient(circle, #fff 1px, transparent 1px);
+
+            background-size: 55px 55px;
+        }
+
+        header {
+            text-align: center;
+            padding: 70px 20px 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            margin-bottom: 20px;
+
+            border: 1px solid rgba(102, 230, 255, .35);
+            border-radius: 999px;
+
+            background: rgba(255, 255, 255, .06);
+            backdrop-filter: blur(10px);
+
+            color: var(--cyan);
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            line-height: 1;
+            margin-bottom: 20px;
+
+            background: linear-gradient(
+                90deg,
+                #fff,
+                #8be9ff,
+                #fff
+            );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+
+            letter-spacing: -2px;
+        }
+
+        header p {
+            max-width: 650px;
+            margin: auto;
+
+            color: #a9c8df;
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        .instruction {
+            margin-top: 25px;
+
+            color: var(--cyan);
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Grid */
+
+        .penguins {
+            width: min(1200px, 92%);
+            margin: 30px auto 80px;
+
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 28px;
+
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Card */
+
+        .card {
+            height: 500px;
+            perspective: 1200px;
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+
+            position: relative;
+
+            transition: transform .8s cubic-bezier(.2,.8,.2,1);
+            transform-style: preserve-3d;
+        }
+
+        .card:hover .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front,
+        .card-back {
+            position: absolute;
+            inset: 0;
+
+            border-radius: 28px;
+            overflow: hidden;
+
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+
+            border: 1px solid rgba(255,255,255,.15);
+
+            box-shadow:
+                0 25px 60px rgba(0,0,0,.35),
+                inset 0 1px 0 rgba(255,255,255,.1);
+        }
+
+        /* Frente */
+
+        .card-front {
+            background: #0b2539;
+        }
+
+        .image {
+            height: 62%;
+            width: 100%;
+
+            background-size: cover;
+            background-position: center;
+
+            position: relative;
+        }
+
+        .image::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+
+            background:
+                linear-gradient(
+                    to bottom,
+                    transparent 45%,
+                    rgba(5, 18, 30, .95)
+                );
+        }
+
+        .number {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            z-index: 2;
+
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: rgba(0,0,0,.45);
+            border: 1px solid rgba(255,255,255,.25);
+
+            backdrop-filter: blur(8px);
+
+            font-weight: bold;
+        }
+
+        .front-content {
+            position: absolute;
+            bottom: 0;
+
+            padding: 25px;
+
+            z-index: 2;
+        }
+
+        .front-content span {
+            color: var(--cyan);
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .front-content h2 {
+            margin: 8px 0;
+            font-size: 28px;
+        }
+
+        .front-content p {
+            color: #b4ccdc;
+            line-height: 1.5;
+        }
+
+        .false-info {
+            padding: 22px 25px;
+
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .false-icon {
+            min-width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 12px;
+            background: rgba(255,93,115,.12);
+            color: var(--danger);
+
+            font-size: 20px;
+        }
+
+        .false-info strong {
+            display: block;
+            margin-bottom: 5px;
+
+            color: #ff8b9a;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .false-info p {
+            color: #d9e7f0;
+            line-height: 1.4;
+        }
+
+        /* Verso */
+
+        .card-back {
+            transform: rotateY(180deg);
+
+            padding: 35px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(56,232,155,.22),
+                    transparent 35%
+                ),
+                linear-gradient(
+                    145deg,
+                    #0c3b43,
+                    #071e2d
+                );
+        }
+
+        .real-label {
+            display: inline-block;
+            width: fit-content;
+
+            padding: 7px 13px;
+
+            margin-bottom: 22px;
+
+            border-radius: 999px;
+
+            background: rgba(56,232,155,.12);
+            border: 1px solid rgba(56,232,155,.25);
+
+            color: var(--success);
+
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .card-back h2 {
+            font-size: 34px;
+            margin-bottom: 18px;
+        }
+
+        .card-back p {
+            color: #c4dce4;
+            line-height: 1.8;
+            font-size: 17px;
+        }
+
+        .fact {
+            margin-top: 25px;
+            padding: 18px;
+
+            border-radius: 16px;
+
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.08);
+        }
+
+        .fact strong {
+            color: var(--success);
+        }
+
+        footer {
+            position: relative;
+            z-index: 1;
+
+            text-align: center;
+            padding: 30px 20px 50px;
+
+            color: #7595aa;
+            font-size: 13px;
+        }
+
+        /* Imagens */
+
+        .penguin-1 {
+            background-image: url(
+                "https://upload.wikimedia.org/wikipedia/commons/8/87/Emperor_Penguin_Manchot_empereur.jpg"
+            );
+        }
+
+        .penguin-2 {
+            background-image: url(
+                "https://upload.wikimedia.org/wikipedia/commons/7/76/Pygoscelis_adeliae_%28Adelie_penguin%29.jpg"
+            );
+        }
+
+        .penguin-3 {
+            background-image: url(
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Pesto_the_penguin_%28adult_plumage%29_1.jpg/800px-Pesto_the_penguin_%28adult_plumage%29_1.jpg"
+            );
+        }
+
+        .penguin-4 {
+            background-image: url(
+                "https://images.unsplash.com/photo-1551986782-d0169b3f8fa7?auto=format&fit=crop&w=1200&q=85"
+            );
+        }
+
+        /* Responsividade */
+
+        @media (max-width: 800px) {
+            header {
+                padding-top: 50px;
+            }
+
+            .penguins {
+                grid-template-columns: 1fr;
+                max-width: 600px;
+            }
+
+            .card {
+                height: 480px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 2.7rem;
+            }
+
+            header p {
+                font-size: 15px;
+            }
+
+            .card {
+                height: 460px;
+            }
+
+            .card-back {
+                padding: 25px;
+            }
+
+            .card-back h2 {
+                font-size: 28px;
+            }
+        }
+
+        /* Animação de entrada */
+
+        .card {
+            animation: appear .7s ease both;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: .1s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: .2s;
+        }
+
+        .card:nth-child(4) {
+            animation-delay: .3s;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
+
 <body>
-    
+
+    <header>
+        <div class="badge">🐧 Penguin Lab</div>
+
+        <h1>Mistérios dos Pinguins</h1>
+
+        <p>
+            Você consegue identificar a verdade?
+            Cada cartão esconde uma informação falsa.
+            Passe o mouse sobre o pinguim para descobrir o fato real.
+        </p>
+
+        <div class="instruction">
+            ↓ PASSE O MOUSE SOBRE OS CARDS ↓
+        </div>
+    </header>
+
+
+    <main class="penguins">
+
+        <!-- PINGUIM 1 -->
+
+        <article class="card">
+
+            <div class="card-inner">
+
+                <div class="card-front">
+
+                    <div class="image penguin-1">
+
+                        <div class="number">01</div>
+
+                        <div class="front-content">
+                            <span>Pinguim #01</span>
+                            <h2>Pinguim-imperador</h2>
+                            <p>
+                                Parece um personagem de filme...
+                                mas será que esta informação é verdadeira?
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="false-info">
+
+                        <div class="false-icon">✕</div>
+
+                        <div>
+                            <strong>Informação falsa</strong>
+
+                            <p>
+                                O pinguim-imperador consegue voar por
+                                pequenas distâncias usando suas asas.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-back">
+
+                    <span class="real-label">✓ Informação verdadeira</span>
+
+                    <h2>Pinguim-imperador</h2>
+
+                    <p>
+                        O pinguim-imperador é uma ave que não voa.
+                        Suas asas evoluíram para funcionar como
+                        nadadeiras, tornando-o extremamente eficiente
+                        dentro da água.
+                    </p>
+
+                    <div class="fact">
+                        <strong>Curiosidade:</strong><br>
+                        É uma das maiores espécies de pinguim existentes.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- PINGUIM 2 -->
+
+        <article class="card">
+
+            <div class="card-inner">
+
+                <div class="card-front">
+
+                    <div class="image penguin-2">
+
+                        <div class="number">02</div>
+
+                        <div class="front-content">
+                            <span>Pinguim #02</span>
+                            <h2>Adélia</h2>
+                            <p>
+                                Pequeno, rápido e adaptado ao frio extremo.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="false-info">
+
+                        <div class="false-icon">✕</div>
+
+                        <div>
+                            <strong>Informação falsa</strong>
+
+                            <p>
+                                O pinguim-Adélia vive naturalmente
+                                apenas em regiões tropicais.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-back">
+
+                    <span class="real-label">✓ Informação verdadeira</span>
+
+                    <h2>Pinguim-Adélia</h2>
+
+                    <p>
+                        O pinguim-Adélia é uma espécie associada à
+                        Antártida e às regiões próximas ao continente.
+                        É especialmente bem adaptado a ambientes frios.
+                    </p>
+
+                    <div class="fact">
+                        <strong>Curiosidade:</strong><br>
+                        Seu nome científico é
+                        <em>Pygoscelis adeliae</em>.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- PINGUIM 3 -->
+
+        <article class="card">
+
+            <div class="card-inner">
+
+                <div class="card-front">
+
+                    <div class="image penguin-3">
+
+                        <div class="number">03</div>
+
+                        <div class="front-content">
+                            <span>Pinguim #03</span>
+                            <h2>Pinguim-rei</h2>
+                            <p>
+                                Elegante, colorido e facilmente reconhecível.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="false-info">
+
+                        <div class="false-icon">✕</div>
+
+                        <div>
+                            <strong>Informação falsa</strong>
+
+                            <p>
+                                O pinguim-rei é a menor espécie
+                                de pinguim do planeta.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-back">
+
+                    <span class="real-label">✓ Informação verdadeira</span>
+
+                    <h2>Pinguim-rei</h2>
+
+                    <p>
+                        O pinguim-rei é uma das maiores espécies
+                        de pinguins. Ele é famoso pela plumagem
+                        colorida ao redor do pescoço e da cabeça.
+                    </p>
+
+                    <div class="fact">
+                        <strong>Curiosidade:</strong><br>
+                        Ele é menor que o pinguim-imperador,
+                        mas ainda possui um porte impressionante.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- PINGUIM 4 -->
+
+        <article class="card">
+
+            <div class="card-inner">
+
+                <div class="card-front">
+
+                    <div class="image penguin-4">
+
+                        <div class="number">04</div>
+
+                        <div class="front-content">
+                            <span>Pinguim #04</span>
+                            <h2>O mundo dos pinguins</h2>
+                            <p>
+                                Será que todos os pinguins vivem no gelo?
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="false-info">
+
+                        <div class="false-icon">✕</div>
+
+                        <div>
+                            <strong>Informação falsa</strong>
+
+                            <p>
+                                Todas as espécies de pinguins vivem
+                                exclusivamente na Antártida.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-back">
+
+                    <span class="real-label">✓ Informação verdadeira</span>
+
+                    <h2>Nem todos vivem no gelo</h2>
+
+                    <p>
+                        Os pinguins não estão restritos à Antártida.
+                        Existem espécies que vivem em regiões
+                        temperadas e até próximas ao equador.
+                    </p>
+
+                    <div class="fact">
+                        <strong>Curiosidade:</strong><br>
+                        O pinguim-das-Galápagos é um exemplo
+                        de espécie que vive em uma região tropical.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    </main>
+
+
+    <footer>
+        Feito para aprender brincando 🐧 · Penguin Lab
+    </footer>
+
 </body>
 </html>
